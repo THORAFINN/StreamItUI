@@ -11,7 +11,7 @@ public class StreamItConstant {
 	
 	
 	public static final String AUTHORIZATION = "authorization";
-	public static final String STREAMIT_UI = "streamitUI";
+	public static final String STREAMIT_UI = "StreamItUI";
 	
 	
 
