@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.streamit.feignclients.AccesAuthService;
 import com.streamit.model.ErrorConstant;
 import com.streamit.model.StreamItConstant;
+import com.streamit.model.Db.Login;
+import com.streamit.model.Dto.AuthRequest;
 import com.streamit.model.Dto.LoginUserDto;
 import com.streamit.model.Dto.RegisterUserDto;
 import com.streamit.model.Dto.ResponseDTO;
@@ -42,7 +43,6 @@ import com.streamit.service.VideoService;
 import reactor.core.publisher.Mono;
 
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/streamitui")
 public class StreamItController {
@@ -53,29 +53,33 @@ public class StreamItController {
 	@Autowired 
 	private VideoService videoService;
 	
+	@Autowired
+	private AccesAuthService accessAuthService;  
+	
 	private Logger logger = LoggerFactory.getLogger(StreamItController.class);
 	
 	@PostMapping(StreamItConstant.SIGN_UP_NEW_USER)
-	public ResponseEntity<ResponseDTO> registerNewUser (@RequestBody RegisterUserDto registerUserDto ){
+	public ResponseEntity<ResponseDTO> registerNewUser (@RequestBody RegisterUserDto registerUserDto, HttpServletRequest request ){
 		logger.info("StreamIt register New User api starts");
 		logger.debug("request Body {}", registerUserDto);
-		ResponseDTO responseDto = loginAndSignUpService.registerNewUser(registerUserDto);
+		ResponseDTO responseDto = loginAndSignUpService.registerNewUser(registerUserDto, request);
 		logger.debug("response from service {}", responseDto);
 		logger.info("StreamIt register New User api ends");
 		return new ResponseEntity<>(responseDto,HttpStatus.OK);
 	}
 	
 	@PostMapping(StreamItConstant.LOGIN)
-	public ResponseEntity<String> loginUserName (@RequestBody LoginUserDto loginUserDto ){
+	public ResponseEntity<String> loginUserName (@RequestBody LoginUserDto loginUserDto ) throws Exception{
 		logger.info("StreamIt login user api starts");
 		logger.debug("request body {}", loginUserDto);
-		String loginPassword = loginAndSignUpService.loginUser(loginUserDto);
+		AuthRequest request = new AuthRequest(loginUserDto.getUserName(), loginUserDto.getPassword()); 
+		String generateJwtToken = accessAuthService.generateJwtToken(request);
 		logger.info("StreamIt login user api ends ..");
-		logger.debug("Response from service {}", loginPassword);
-		if (loginPassword == null) {
+		logger.debug("Response from service {}", generateJwtToken);
+		if (generateJwtToken == null) {
 			return new ResponseEntity<>(ErrorConstant.ERRMSG_INVALID_CREDITIALS,HttpStatus.UNAUTHORIZED); 
 		} else {
-			return new ResponseEntity<>(loginPassword,HttpStatus.OK);
+			return new ResponseEntity<>(generateJwtToken,HttpStatus.OK);
 		}
 	}    
 	
@@ -85,11 +89,13 @@ public class StreamItController {
 		logger.info("Get video By ref starts");
 		logger.debug("Video ref {}", ref);
 		String authTokken = request.getHeader(StreamItConstant.AUTHORIZATION);
-		Integer userId = loginAndSignUpService.isValidUSer(authTokken);
-		if (userId  == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		ResponseEntity<Login> validateToken = accessAuthService.validateToken(authTokken);
+		Login login = validateToken.getBody();
+		if (login == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
 		}
 		Mono<Resource> stream = videoService.getVideoByRef(ref);
+		logger.debug("end of get video by ref api .");
 	    if (stream == null) {
 		   return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	   } else {
@@ -106,13 +112,18 @@ public class StreamItController {
 		logger.info("Streamit Upload video api start");
 		logger.debug ("searchParams {}", searchParam);
 		String authTokken = request.getHeader(StreamItConstant.AUTHORIZATION);
-		Integer userId = loginAndSignUpService.isValidUSer(authTokken);
-		if (userId  == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		if (authTokken == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
+		}
+		ResponseEntity<Login> validateToken = accessAuthService.validateToken(authTokken);
+		Login login = validateToken.getBody();
+		if (login == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
 		}
 		if (searchParam.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		Integer userId = login.getId();
 		dto.setVideoTitle(searchParam.get("video_name"));
 		dto.setThumbNailTitle(searchParam.get("thumbnail_title"));
 		dto.setThumbNail(thumbNail);
@@ -134,9 +145,13 @@ public class StreamItController {
     	logger.info("Get video List api start");
     	logger.debug ("searchParams {}", searchParam);
 		String authTokken = request.getHeader(StreamItConstant.AUTHORIZATION);
-		Integer userId = loginAndSignUpService.isValidUSer(authTokken);
-		if (userId  == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		if (authTokken == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
+		}
+		ResponseEntity<Login> validateToken = accessAuthService.validateToken(authTokken);
+		Login login = validateToken.getBody();
+		if (login == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
 		}
 		String stringPageIndex = searchParam.remove("pageIndex");
 		String stringPageSize = searchParam.remove("pageSize");

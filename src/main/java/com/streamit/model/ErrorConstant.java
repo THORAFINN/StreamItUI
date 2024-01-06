@@ -14,6 +14,9 @@ public class ErrorConstant {
 	public static final String ERROR_CODE_INVALID_USERNAME_VALUE = "EM1003";
 	public static final String ERRMSG_INVALID_USERNAME_VALUE = "Invalid value for userName";
 	
+	public static final String ERROR_CODE_INVALID_USEREMAIL_VALUE = "EM1010";
+	public static final String ERRMSG_INVALID_USEREMAIL_VALUE = "Invalid value for user email";
+	
 	public static final String ERROR_CODE_MISSING_VIDEO = "EM1004";
 	public static final String ERRMSG_MISSING_VIDEO = "Video Cannot be null";
 	

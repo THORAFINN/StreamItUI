@@ -60,6 +60,13 @@ public class VideoService {
 	
 	private static Logger logger = LoggerFactory.getLogger(VideoService.class);
 
+	/**
+	 * 
+	 * <p>
+	 * @param dto
+	 * @return
+	 * @throws IOException
+	 */
 	public ResponseDTO uploadVideoFile (UploadVideoDto dto) throws IOException {
 		
 		ResponseDTO validateResponse = validateRequest (dto);
@@ -112,6 +119,7 @@ public class VideoService {
 					                                                               ResponseDTO.class);
 			return response.getBody();
 		} catch (Exception e) {
+			logger.info("erro occcured when calling streamit process api");
 			logger.error(e.getMessage(),e);
 			return new ResponseDTO(2, ErrorConstant.ERROR_CODE_INTERNAL_SERVER_ERROR, ErrorConstant.ERRMSG_INTERNAL_SERVER_ERROR);
 		}
@@ -149,6 +157,7 @@ public class VideoService {
 			ResponseEntity<FileUploadReponseDto> response = this.restTemplate.postForEntity(streamServiceUploadFileUrl, requestEntity, FileUploadReponseDto.class);
 			return response.getBody();
 		} catch (Exception e) {
+			logger.info("erro occcured when calling streamit upload api");
 			logger.error(e.getMessage(),e);
 			return new FileUploadReponseDto(2, ErrorConstant.ERROR_CODE_INTERNAL_SERVER_ERROR, ErrorConstant.ERRMSG_INTERNAL_SERVER_ERROR);
 		}
@@ -204,8 +213,7 @@ public class VideoService {
 			String filePath = video.getvFilePath();
 			return Mono.fromSupplier(()-> new FileSystemResource(filePath));
 		}
-		
-		logger.info("Invlaid video ref {}", ref);
+		logger.info("Invalid video ref {}", ref);
 		return null;
 	}
 	

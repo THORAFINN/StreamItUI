@@ -12,6 +12,17 @@ public class RegisterUserDto {
 	
 	@JsonProperty(value = "password", required = true)
 	private String password;
+	
+	@JsonProperty(value = "email", required = true)
+	private String email;
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
 	public String getName() {
 		return name;
@@ -37,11 +48,12 @@ public class RegisterUserDto {
 		this.password = password;
 	}
 
-	public RegisterUserDto(String name, String userName, String password) {
+	public RegisterUserDto(String name, String userName, String password, String email) {
 		super();
 		this.name = name;
 		this.userName = userName;
 		this.password = password;
+		this.email = email; 
 	}
 
 	public RegisterUserDto() {
