@@ -7,6 +7,7 @@ public class StreamItConstant {
 	public static final String GET_VIDEO = "/video/{ref}";
 	public static final String UPLOAD_VIDEO = "/video/upload";
 	public static final String GET_VIDEO_LIST = "/video/list";
+	public static final String REFRESH_TOKEN = "/refresh/token";
 	
 	
 	

@@ -18,5 +18,8 @@ public interface AccesAuthService {
 	
 	@PostMapping("/access/token/generate")
 	public String generateJwtToken (@RequestBody AuthRequest authrequest) throws Exception;
+	
+	@PostMapping("/access/token/refresh")
+	public ResponseEntity<String> refreshToken (@RequestHeader("Authorization") String authTokken);
 
 }

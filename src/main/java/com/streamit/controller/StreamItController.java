@@ -165,4 +165,16 @@ public class StreamItController {
     	return new ResponseEntity<>(pageData, HttpStatus.OK);
     }
 	
+	@PostMapping(StreamItConstant.REFRESH_TOKEN)
+	public ResponseEntity<String> refreshJwtToken (HttpServletRequest request){
+		logger.info("Refresh Jwt token api start...");
+		String authTokken = request.getHeader(StreamItConstant.AUTHORIZATION);
+		if (authTokken == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
+		}
+		ResponseEntity<String> response = accessAuthService.refreshToken(authTokken);
+		logger.info("Refresh Jwt token api end.");
+		return response;
+	}
+	
 }
