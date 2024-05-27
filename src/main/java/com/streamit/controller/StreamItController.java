@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +43,7 @@ import com.streamit.service.VideoService;
 
 import reactor.core.publisher.Mono;
 
-
+@CrossOrigin(origins = "${streamit.cors.url.ip}") 
 @RestController
 @RequestMapping("/streamitui")
 public class StreamItController {
