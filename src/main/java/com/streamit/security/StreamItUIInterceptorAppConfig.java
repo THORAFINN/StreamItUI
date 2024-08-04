@@ -24,8 +24,8 @@ public  class StreamItUIInterceptorAppConfig implements WebMvcConfigurer{
 		registry.addInterceptor(StreamItUIInterceptor).addPathPatterns("/**");
 	}
 	
-	 @Override
-	 public void addCorsMappings(CorsRegistry registry) {
-	        registry.addMapping("/*").allowedOrigins("*");
-	 }
+//	 @Override
+//	 public void addCorsMappings(CorsRegistry registry) {
+//	        registry.addMapping("/*").allowedOrigins("http://localhost:4200").allowedMethods("GET","POST").allowedHeaders("*");
+//	 }
 }

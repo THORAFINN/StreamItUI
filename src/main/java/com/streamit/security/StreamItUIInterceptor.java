@@ -25,7 +25,11 @@ public class StreamItUIInterceptor implements HandlerInterceptor{
 	    logger.info("incomingMethod {}", incomingMethod);
 	    if (incomingMethod.matches(HttpMethod.GET.toString()) || incomingMethod.matches(HttpMethod.POST.toString())) {
 	    	 return true;
-	    } else {
+	    } else if (incomingMethod.matches(HttpMethod.OPTIONS.toString())) {
+	    	return true;
+	    } 
+	    
+	    else {
 	       return false;	
 	    }    
 	}
